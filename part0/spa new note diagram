@@ -1,0 +1,23 @@
+note over browser:
+spa.js code adds note to list
+end note
+
+note over browser:
+rerenders the note list on the page
+end note
+
+note over browser: 
+sends the new note to the server
+end note
+
+browser->server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+
+note over browser:
+JSON data with note and timestamp 
+end note
+
+server-->browser: HTTP status code 201
+
+note over server:
+{"message":"note created"} 
+end note
