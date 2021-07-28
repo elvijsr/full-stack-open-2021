@@ -1,22 +1,31 @@
 import React from 'react'
 
 const PersonForm = ({ newName, newNumber, persons, setPersons,
-    setNewName, setNewNumber, setPersonsToShow }) => {
+    setNewName, setNewNumber, setPersonsToShow, services, setAddedMessage }) => {
 
     const addPerson = (event) => {
         event.preventDefault()
         const personObject = {
             name: newName,
-            tel: newNumber
+            number: newNumber
         }
         if (persons.find(person => person.name === newName)) {
             alert(`${newName} is already added to phonebook`)
         }
         else {
-            const newList = persons.concat(personObject)
-            setPersons(newList)
-            setPersonsToShow(newList)
-            setNewName('')
+            services.create(personObject)
+            .then(newPerson => {
+              const newList = persons.concat(newPerson)
+              setPersons(newList)
+              setPersonsToShow(newList)
+              setNewName('')
+              setAddedMessage(
+                `Added ${newPerson.name} `
+              )
+              setTimeout(() => {
+                setAddedMessage(null)
+              }, 5000)
+            })
         }
     }
 
