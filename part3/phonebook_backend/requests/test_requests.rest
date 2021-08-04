@@ -1,0 +1,10 @@
+DELETE http://127.0.0.1:3001/api/persons/2
+
+###
+POST http://127.0.0.1:3001/api/persons
+Content-Type: application/json
+
+{
+    "name": "Pedro Pedrito",
+    "number": "39-2234-424525"
+}
