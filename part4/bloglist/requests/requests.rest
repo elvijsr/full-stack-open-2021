@@ -3,10 +3,26 @@ GET http://localhost:3003/api/blogs
 ###
 POST http://127.0.0.1:3003/api/blogs
 Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3R1c2VyIiwiaWQiOiI2MTEzY2Y1YWI5YjE1MTM2OGM0M2ExZDgiLCJpYXQiOjE2Mjg3NTQwNTd9.EkQJtPIusGfxoZAAukZRNjZyJgrw6sYMtTz0bUKT1ds
 
 {
-    "title": "first blog",
+    "title": "random blogsasdd",
     "author": "john cena",
     "url": "https://google.com",
     "likes": 12
 }
+
+###
+POST http://127.0.0.1:3003/api/login
+Content-Type: application/json
+
+{
+    "username": "testuser",
+    "password": "password1"
+}
+
+###
+
+DELETE  http://127.0.0.1:3003/api/blogs/6114e9edf07d5a3bbc43632b
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3R1c2VyIiwiaWQiOiI2MTEzY2Y1YWI5YjE1MTM2OGM0M2ExZDgiLCJpYXQiOjE2Mjg3NTQwNTd9.EkQJtPIusGfxoZAAukZRNjZyJgrw6sYMtTz0bUKT1ds
