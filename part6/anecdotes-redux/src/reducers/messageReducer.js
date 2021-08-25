@@ -9,11 +9,18 @@ const messageReducer = (state = null, action) => {
     }
 }
 
-export const messageChange = message => {
-    return {
-        type: 'SET_MESSAGE',
-        message,
-    }
+export const setNotification = (message, duration) => {
+  return async dispatch => {
+    dispatch({
+      type: 'SET_MESSAGE',
+      message
+    })
+    setTimeout(() => {
+      dispatch({
+        type: 'REMOVE_MESSAGE'
+      })
+    }, duration * 1000)
+  }
 }
 
 export const messageRemove = () => {
