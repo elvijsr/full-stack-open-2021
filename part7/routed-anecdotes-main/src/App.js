@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { Link, useHistory, Switch, Route, useParams, useRouteMatch } from 'react-router-dom'
+import { Link, useHistory, Switch, Route, useRouteMatch } from 'react-router-dom'
+import  { useField } from './hooks'
 
 const Menu = () => {
   const padding = {
@@ -62,21 +63,37 @@ const Footer = () => (
 
 const CreateNew = (props) => {
   const history = useHistory()
-  const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [info, setInfo] = useState('')
+  const content = useField('text')
+  const author = useField('text')
+  const info = useField('text')
 
+
+  const stripProp = (field) => {
+    const {resetValue, ...stripped} = field
+    return stripped
+  }
+
+  
 
   const handleSubmit = (e) => {
     e.preventDefault()
     props.addNew({
-      content,
-      author,
-      info,
+      content: content.value,
+      author: author.value,
+      info: info.value,
       votes: 0
     })
     history.push('/')
   }
+
+  const resetForm = () => {
+    content.resetValue()
+    author.resetValue()
+    info.resetValue()
+  }
+
+  // const {resetValue, ...content} = stripped;
+  
 
   return (
     <div>
@@ -84,18 +101,19 @@ const CreateNew = (props) => {
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
+          <input {...stripProp(content)}/>
         </div>
         <div>
           author
-          <input name='author' value={author} onChange={(e) => setAuthor(e.target.value)} />
+          <input {...stripProp(author)}/>
         </div>
         <div>
           url for more info
-          <input name='info' value={info} onChange={(e)=> setInfo(e.target.value)} />
+          <input {...stripProp(info)}/>
         </div>
         <button>create</button>
       </form>
+      <button onClick={resetForm}>reset</button>
     </div>
   )
 
@@ -140,7 +158,7 @@ const App = () => {
   const [notification, setNotification] = useState(null)
 
   const addNew = (anecdote) => {
-    anecdote.id = (Math.random() * 10000).toFixed(0)
+    anecdote.id = Number((Math.random() * 10000).toFixed(0))
     setAnecdotes(anecdotes.concat(anecdote))
     setNotification(`anecdote ${anecdote.content} created!`)
     setTimeout(() => {
