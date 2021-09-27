@@ -1,135 +1,78 @@
-import React, { useState, useEffect, useRef } from 'react'
-import Blog from './components/Blog'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import BlogList from './components/BlogList'
 import BlogForm from './components/BlogForm'
-import Togglable from './components/Togglable'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
-import blogService from './services/blogs'
-import loginService from './services/login'
+import UserList from './components/UserList'
+import User from './components/User'
+import { initializeBlogs } from './reducers/blogReducer'
+import { checkToken, handleLogout } from './reducers/userReducer'
+import {
+  Switch,
+  Route,
+  //Link,
+  //Redirect,
+  useRouteMatch,
+  //useHistory,
+} from 'react-router-dom'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
-  const [messageContent, setMessageContent] = useState(null)
-  const [messageType, setMessageType] = useState(null)
-  const [user, setUser] = useState(null)
-  const blogFormRef = useRef()
+  const user = useSelector(state => state.user)
+  const dispatch = useDispatch()
 
-
-  useEffect(() => {
-    async function fetchData() {
-      const response = await blogService.getAll()
-      const sorted = response.sort((a,b) => {
-        return b.likes - a.likes
-      })
-      setBlogs(sorted)
-    }
-    fetchData()
-  }, [])
+  const match = useRouteMatch('/users/:id')
+  const userId = match
+    ? match.params.id
+    : null
 
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      blogService.setToken(user.token)
-    }
+    dispatch(initializeBlogs())
+  },[dispatch])
+
+  useEffect(() => {
+    dispatch(checkToken())
   }, [])
 
-  const handleLogin = async ({ username, password }) => {
-    try {
-      const user = await loginService.login({
-        username, password,
-      })
-
-      window.localStorage.setItem(
-        'loggedBlogappUser', JSON.stringify(user)
-      )
-
-      blogService.setToken(user.token)
-      setUser(user)
-
-    } catch (exception) {
-      setMessageType('error')
-      setMessageContent('wrong username or password')
-      setTimeout(() => {
-        setMessageContent(null)
-        setMessageType(null)
-      }, 5000)
-    }
-  }
-
-  const handleLogout = (event) => {
+  const logOut = (event) => {
     event.preventDefault()
-    window.localStorage.removeItem('loggedBlogappUser')
-    setUser(null)
-    blogService.setToken(null)
+    dispatch(handleLogout())
   }
-
-  const addBlog = async (blogObject) => {
-    blogFormRef.current.toggleVisibility()
-    const response = await blogService.create(blogObject)
-    setBlogs(blogs.concat(response))
-
-    setMessageType('added')
-    setMessageContent(`a new blog ${response.title} by ${response.author} added`)
-
-    setTimeout(() => {
-      setMessageContent(null)
-      setMessageType(null)
-    }, 5000)
-  }
-
-  const likeBlog = async id => {
-    const blog = blogs.find(n => n.id === id)
-    const blogObject = {
-      user: blog.user,
-      likes: blog.likes + 1,
-      author: blog.author,
-      title: blog.title,
-      url: blog.url
-    }
-    const response = await blogService.update(id, blogObject)
-    setBlogs(blogs.map(blog => blog.id !== id ? blog : response))
-  }
-
-  const deleteBlog = async id => {
-    const response = await blogService.deleteBlog(id)
-    if (response.status === 204) {
-      setBlogs(blogs.filter(blog => blog.id !== id))
-    }
-  }
-
-  const blogForm = () => (
-    <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-      <BlogForm createBlog={addBlog} />
-    </Togglable>
-  )
 
 
   if (user === null) {
     return (
       <div>
         <h2>Log in to application</h2>
-        <Notification message={messageContent} type={messageType}/>
-        <LoginForm handleLogin={handleLogin} />
+        <Notification />
+        <LoginForm />
       </div>
     )
   }
 
+
   return (
     <div>
       <h2>blogs app</h2>
-      <Notification message={messageContent} type={messageType}/>
+      <Notification />
       <p>{user.name} logged-in
-        <button onClick={handleLogout}>logout</button>
+        <button onClick={logOut}>logout</button>
       </p>
-      {blogForm()}
 
-      <h2>Blog list:</h2>
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog}
-          likeBlog={likeBlog} removeBlog={deleteBlog} user={user}/>
-      )}
+      <Switch>
+        <Route path="/users/:id">
+          <User id={userId} />
+        </Route>
+        <Route path="/users">
+          <h1>Users</h1>
+          <UserList />
+        </Route>
+        <Route path="/">
+          <BlogForm />
+          <h2>Blog list:</h2>
+          <BlogList />
+        </Route>
+      </Switch>
     </div>
   )
 }

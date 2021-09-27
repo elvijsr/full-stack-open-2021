@@ -1,6 +1,10 @@
 import React, { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { likeBlog, deleteBlog } from '../reducers/blogReducer'
+import { setNotification } from '../reducers/messageReducer'
 
-const Blog = ({ blog, likeBlog, removeBlog, user }) => {
+const Blog = ({ blog, user }) => {
+  const dispatch = useDispatch()
   const [visible, setVisible] = useState(false)
   const showWhenVisible = { display: visible ? '' : 'none' }
 
@@ -17,12 +21,21 @@ const Blog = ({ blog, likeBlog, removeBlog, user }) => {
   }
 
   const like = () => {
-    likeBlog(blog.id)
+    const blogObject = {
+      user: blog.user,
+      likes: blog.likes + 1,
+      author: blog.author,
+      title: blog.title,
+      url: blog.url
+    }
+    dispatch(likeBlog(blog.id, blogObject))
+    dispatch(setNotification(`liked "${blog.title}"`, 5))
   }
 
   const remove = () => {
     if (window.confirm('Delete this blog?')) {
-      removeBlog(blog.id)
+      dispatch(deleteBlog(blog.id))
+      dispatch(setNotification(`deleted "${blog.title}"`, 5))
     }
   }
 
